@@ -1,5 +1,7 @@
+%read in TargetedListNames with names and abbreviations, output .xls with
+%first two columns, and full names replaced with underscores and written out
+%numbers in third columns
 readFID=fopen('TargetedListNames.txt');
-%writeFID=fopen('TargetedListNamesWithAbbr.csv','w');
 line=fgetl(readFID);
 writeBlock={};
 while(line~=-1)
@@ -20,4 +22,4 @@ while(line~=-1)
     end
     line=fgetl(readFID);
 end
-xlswrite('TargetedListNamesWithAbbr.xls',writeBlock,['A1:C' num2str(size(writeBlock,1))]);
+xlswrite('TargetedListNames.xls',writeBlock,['A1:C' num2str(size(writeBlock,1))]);

@@ -1,20 +1,24 @@
-suffix='Mod2ExpandedHighRawAllLock';
-modelFID=fopen(['beckerModel' suffix '.txt']);
-line=fgetl(modelFID);
+suffix='1OnlyRedZeroBGMin1PercentLow';
+inputFID=fopen(['model' suffix '.txt']);
+
+%reactionLabels1 contains R name, reactionLabels2 contains equation name
+%metabolites contains metabolite names for all isotopomers, isotopomers
+%contains m numbers
+line=fgetl(inputFID);
 measurements=0;
 errors=0;
 expMID=[];
 expSTD=[];
 metabolites={};
 isotopomers={};
-fluxLabels={};
-reactionLabels={};
+reactionLabels1={};
+reactionLabels2={};
 currentMetabolite='';
 while(line~=-1)
     if(sum(regexp(line,'^R'))~=0)
         words=strsplit(line,'\t');
-        fluxLabels{end+1}=words{2};
-        reactionLabels{end+1}=words{1};
+        reactionLabels1{end+1}=words{1};
+        reactionLabels2{end+1}=words{2};
     end
     if(sum(regexp(line,'measurements'))~=0)
         measurements=1;
@@ -23,10 +27,16 @@ while(line~=-1)
         measurements=0;
         errors=1;
     end
+    
     if(measurements)
         words=strsplit(line,'\t');
+        %check if line is actual measurements label, check if line is empty
+        %since always '' at end of strsplit array
         if(~strcmp(words{1},'##') && ~strcmp(words{1},''))
             expMID(end+1)=str2num(words{2});
+            
+            %if no metabolite name so length==4, add to metabolites and
+            %isotopomers, else also change current Metabolite
             if(length(words)==4)
                 metabolites{end+1}=currentMetabolite;
                 isotopomers{end+1}=words{3};
@@ -37,33 +47,36 @@ while(line~=-1)
             end
         end
     end
+    
     if(errors)
         words=strsplit(line,'\t');
         if(~strcmp(words{1},'##') && ~strcmp(words{1},''))
             expSTD(end+1)=str2num(words{2});
         end
     end
-    line=fgetl(modelFID);
+    line=fgetl(inputFID);
 end
-fclose(modelFID);
+fclose(inputFID);
 
-modelFID=fopen('MID_solution.txt');
-line=fgetl(modelFID);
+inputFID=fopen(['MID_solution' suffix '.txt']);
+line=fgetl(inputFID);
 simMID=[];
 while(line~=-1)
     simMID(end+1)=str2num(line);
-    line=fgetl(modelFID);
+    line=fgetl(inputFID);
 end
-fclose(modelFID);
+fclose(inputFID);
 
-modelFID=fopen('results_PE.txt');
-line=fgetl(modelFID);
+combMID=[];combMID(1:2:(2*length(expMID)-1))=expMID;combMID(2:2:(2*length(expMID)))=simMID;
+
+inputFID=fopen(['results_PE' suffix '.txt']);
+line=fgetl(inputFID);
 simFluxes=[];
 fluxes=0;
 while(line~=-1)
     if(sum(regexp(line,'estimated fluxes')))
         fluxes=1;
-        line=fgetl(modelFID);
+        line=fgetl(inputFID);
         continue;
     end
     if(sum(regexp(line,'chi-square cut off')))
@@ -71,155 +84,77 @@ while(line~=-1)
     end
     if(fluxes)
         words=strsplit(line,'\t');
-        %if(length(words)==6)
         simFluxes(end+1)=str2num(words{2});
-        %end
     end
-    line=fgetl(modelFID);
+    line=fgetl(inputFID);
 end
-fclose(modelFID);
+fclose(inputFID);
 
-figure('Visible','off','Renderer','zbuffer');
-bar(1:length(simFluxes),simFluxes,1);
-set(gcr,'Units','centimeters');
-set(gcf,'PaperPositionMode','auto');
-set(gcf,'PaperPosition',[.25 2.5 .32*length(simFluxes) 6]);
-set(gca,'XTick',[]);
-set(gca,'units','centimeters','position',[1.25 5.5 .64*length(simFluxes) 6]);
-ylabel('Flux');
-%ylim([0 10^-9]);
-ylim('manual')
-set(gca,'YLim',[0 .0000001])
-hx=get(gca,'XLabel');
-set(hx,'Units','data');
-pos=get(hx,'Position');
-y=pos(2);
-for i=1:length(fluxLabels)
-   t(i)=text(i,y,fluxLabels{i},'fontSize',5,'Interpreter','default');
-end
-set(t,'Rotation',90,'HorizontalAlignment','right');
-saveas(gcf,['fluxGraphZoom' suffix '.png']);
-
-figure('Visible','off','Renderer','zbuffer');
-bar(1:length(simFluxes),simFluxes,1);
-set(gcr,'Units','centimeters');
-set(gcf,'PaperPositionMode','auto');
-set(gcf,'PaperPosition',[.25 2.5 .32*length(simFluxes) 6]);
-set(gca,'XTick',[]);
-set(gca,'units','centimeters','position',[2.25 3.25 .64*length(simFluxes) 10]);
-ylabel('Flux');
-hx=get(gca,'XLabel');
-set(hx,'Units','data');
-pos=get(hx,'Position');
-y=pos(2);
-for i=1:length(fluxLabels)
-   t(i)=text(i,y+.02,fluxLabels{i},'fontSize',5,'Interpreter','default');
-end
-set(t,'Rotation',90,'HorizontalAlignment','right');
-saveas(gcf,['fluxGraph' suffix '.png']);
-
+%select labels and fluxes for exchange reactions
 exchangeFluxes=[];
 exchangeLabels={};
-for i=1:length(reactionLabels)
-    if(strcmp(reactionLabels{i},'R01'))
-        exchangeLabels{end+1}=reactionLabels{i};
-        exchangeFluxes(end+1)=simFluxes(i);
-    end
-    if(sum(regexp(reactionLabels{i},'Exchange'))~=0)
-        if(sum(regexp(reactionLabels{i},'FR$'))~=0)
-            ithReactionLabel=reactionLabels{i};
+for i=1:length(reactionLabels1)
+    if(sum(regexp(reactionLabels1{i},'Exchange'))~=0)
+        %if there is an FR and R pair, subtract the flux for the reverse
+        %from the forward, else just add the exchange label and flux
+        if(sum(regexp(reactionLabels1{i},'FR$'))~=0)
+            ithReactionLabel=reactionLabels1{i};
             exchangeLabels{end+1}=ithReactionLabel(1:end-2);
             exchangeFluxes(end+1)=simFluxes(i);
-        else
+        elseif(sum(regexp(reactionLabels1{i},'R$'))~=0)
             exchangeFluxes(end)=exchangeFluxes(end)-simFluxes(i);
+        else
+            ithReactionLabel=reactionLabels1{i};
+            exchangeLabels{end+1}=ithReactionLabel(1:end-2);
+            exchangeFluxes(end+1)=simFluxes(i);
         end
     end
 end
-figure('Visible','off','Renderer','zbuffer');
-bar(1:length(exchangeFluxes),exchangeFluxes,1);
-set(gcr,'Units','centimeters');
-set(gcf,'PaperPositionMode','auto');
-set(gcf,'PaperPosition',[.25 2.5 .32*length(exchangeFluxes) 6]);
-set(gca,'XTick',[]);
-set(gca,'units','centimeters','position',[2.25 3.25 .64*length(exchangeFluxes) 10]);
-ylabel('Flux');
-hx=get(gca,'XLabel');
-set(hx,'Units','data');
-pos=get(hx,'Position');
-y=pos(2);
-for i=1:length(exchangeLabels)
-   t(i)=text(i,y+.02,exchangeLabels{i},'fontSize',5,'Interpreter','default');
-end
-set(t,'Rotation',90,'HorizontalAlignment','right');
-saveas(gcf,['fluxGraphExchange' suffix '.png']);
 
-figure('Visible','off');
-bar(1:length(expMID),[expMID' simMID'],2);
-set(gcf,'Units','centimeters');
-set(gcf,'PaperPositionMode','auto');
-set(gcf,'PaperPosition',[.25 2.5 .16*length(expMID) 12]);
-set(gca,'XTick',[]);
-ylabel('MID Proportion');
-hx=get(gca,'XLabel');
-set(hx,'Units','data');
-pos=get(hx,'Position');
-y=pos(2);
-for i=1:length(metabolites)
-    t(i)=text(i,y+.02,[metabolites{i} ' ' isotopomers{i}]);
-end
-set(t,'Rotation',90,'HorizontalAlignment','right');
-saveas(gcf,['MIDGraph' suffix '.png']);
-
+%selec the top 10 of everything based on experimental deviation divided by
+%experimental error, interleave experimental and simulated in selectCombMID
 [junk sortIdxs]=sort(abs((expMID-simMID)./expSTD));
 selectExpSTD=expSTD(sortIdxs);selectExpSTD=selectExpSTD(end-9:end);
 selectExpMID=expMID(sortIdxs);selectExpMID=selectExpMID(end-9:end);
 selectSimMID=simMID(sortIdxs);selectSimMID=selectSimMID(end-9:end);
 selectMetabolites=metabolites(sortIdxs);selectMetabolites=selectMetabolites(end-9:end);
 selectIsotopomers=isotopomers(sortIdxs);selectIsotopomers=selectIsotopomers(end-9:end);
-combMID=[];combMID(1:2:19)=selectExpMID;combMID(2:2:20)=selectSimMID;
+selectCombMID=[];selectCombMID(1:2:19)=selectExpMID;selectCombMID(2:2:20)=selectSimMID;
 
-figure('Visible','off');
-hold on;
-for i=1:length(combMID)
-    if (rem(i,2)==1)
-        bar(i,combMID(i),'r');
-    else
-        bar(i,combMID(i),'b');
+makeGraph(reactionLabels1,simFluxes,'Flux',[0 .0000001], ...
+    [.25 2.5 .32*length(simFluxes) 6],[1.25 5.5 .64*length(simFluxes) 6], ...
+    1,5,['fluxGraphZoom' suffix '.png'],'fluxGraphZoom');
+
+makeGraph(reactionLabels1,simFluxes,'Flux',[], ...
+    [.25 2.5 .32*length(simFluxes) 6],[2.25 3.25 .64*length(simFluxes) 10], ...
+    1,5,['fluxGraph' suffix '.png'],'fluxGraph');
+
+makeGraph(exchangeLabels,exchangeFluxes,'Flux',[], ...
+    [.25 2.5 .32*length(exchangeFluxes) 6],[2.25 3.25 .64*length(exchangeFluxes) 10], ...
+    1,5,['fluxGraphExchange' suffix '.png'],'fluxGraphExchange');
+
+shortenedMetabolites={};
+for i=1:length(metabolites)
+    shortenedMetabolite=shortenedMetabolites{i};
+    shortenedMetabolite=shortenedMetabolite(1:regexp(shortenedMetabolite,'#')-1);
+    if(~strcmp(isotopomers{i},'m'))
+        shortenedMetabolite='';
     end
+    shortenedMetabolites{i}=shortenedMetabolite;
 end
-set(gcf,'Units','centimeters');
-set(gcf,'PaperPositionMode','auto');
-set(gcf,'PaperPosition',[.25 2 .50*length(combMID) 12]);
-set(gca,'XTick',[]);
-ylabel('MID Proportion');
-hx=get(gca,'XLabel');
-set(hx,'Units','data');
-pos=get(hx,'Position');
-y=pos(2);
-for i=1:length(selectMetabolites)
-    t(i)=text(2*i-1,y,[selectMetabolites{i} ' ' selectIsotopomers{i}]);
-end
-set(t,'Rotation',90,'HorizontalAlignment','right');
-saveas(gcf,['MIDGraphSelect' suffix '.png']);
 
-figure('Visible','off');
-hold on;
-bar((selectExpMID-selectSimMID)./selectExpSTD,'g');
-set(gcf,'Units','centimeters');
-set(gcf,'PaperPositionMode','auto');
-set(gcf,'PaperPosition',[.25 2 .50*length(combMID) 12]);
-set(gca,'XTick',[]);
-ylabel('MID Proportion');
-hx=get(gca,'XLabel');
-set(hx,'Units','data');
-pos=get(hx,'Position');
-y=pos(2);
-for i=1:length(selectMetabolites)
-    t(i)=text(i,y,[selectMetabolites{i} ' ' selectIsotopomers{i}]);
-end
-set(t,'Rotation',90,'HorizontalAlignment','right');
-saveas(gcf,['MIDErrorSelect' suffix '.png']);
+makeGraph(shortenedMetabolites,combMID,'MID Proportion',[], ...
+    [0 0 .3*length(expMID) 20],[], ...
+    1,25,['MIDGraph' suffix '.png'],'MIDGraph');
 
-movefile('results_PE.txt',['results_PE' suffix '.txt']);
-movefile('results_mid.txt',['results_mid' suffix '.txt']);
-movefile('MID_solution.txt',['MID_solution' suffix '.txt']);
+for i=1:length(selectMetabolites)
+    selectMetabolites{i}=[selectMetabolites{i} ' ' selectIsotopomers{i}];
+end
+
+makeGraph(selectMetabolites,selectCombMID,'MID Proportion',[], ...
+    [.25 2 .50*length(selectCombMID) 12],[], ...
+    1,25,['MIDGraphSelect' suffix '.png'],'MIDGraphSelect');
+
+makeGraph(selectMetabolites,(selectExpMID-selectSimMID)./selectExpSTD,'MID Proportion',[], ...
+    [.25 2 .50*length(selectCombMID) 12],[], ...
+    1,25,['MIDErrorSelect' suffix '.png'],'MIDErrorSelect');
