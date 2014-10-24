@@ -1,0 +1,25 @@
+%%simulated first order measurement derivative vector
+
+dee_x_calc = [
+	dee_GLC6P_111111'
+	dee_F6P_111111'
+	dee_F16BP_111111'
+	dee_DHAP_111'
+	dee_G3P_111'
+	dee_X3PG_111'
+	dee_PYR_111'
+	dee_SER_111'
+	dee_GLY_11'
+	dee_OAA_1111'
+	dee_CIT_111111'
+	dee_AKG_11111'
+	dee_SUC_1111'
+	dee_GLN_11111'
+	dee_LAC_111'
+	dee_GLU_11111'
+	dee_ASP_1111'
+	dee_ALA_111'
+	dee_E4P_1111'
+	dee_P5P_11111'
+	dee_S7P_1111111'
+];

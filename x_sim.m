@@ -1,0 +1,25 @@
+%%simulated measurement vector
+
+x_calc = [
+	GLC6P_111111'
+	F6P_111111'
+	F16BP_111111'
+	DHAP_111'
+	G3P_111'
+	X3PG_111'
+	PYR_111'
+	SER_111'
+	GLY_11'
+	OAA_1111'
+	CIT_111111'
+	AKG_11111'
+	SUC_1111'
+	GLN_11111'
+	LAC_111'
+	GLU_11111'
+	ASP_1111'
+	ALA_111'
+	E4P_1111'
+	P5P_11111'
+	S7P_1111111'
+];
