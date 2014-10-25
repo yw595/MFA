@@ -1,4 +1,4 @@
-suffix='Test';
+suffix='v0';
 modelEquationsToDiagramEquations=containers.Map;
 modelEquations={};
 modelEquationsReversibility={};
@@ -6,9 +6,9 @@ modelEquationsReversibility={};
 %read in model equations, reversibility for each one, and map to diagram
 %equations. For Marc, calculate all of the edge names that should be
 %created.
-modelFID=fopen(['model' suffix '.txt']);
+modelFID=fopen(['outputMaster/model' suffix '.txt']);
 line=fgetl(modelFID);
-writeFID2=fopen(['model' suffix 'ForMarc.csv'],'w');
+writeFID2=fopen(['outputMaster/model' suffix 'ForMarc.csv'],'w');
 while(line~=-1)
     if(sum(regexp(line,'^R'))~=0)
         words=strsplit(line,'\t');
@@ -83,8 +83,8 @@ fclose(modelFID);
 fclose(writeFID2);
 
 %read in corresponding results_PE file, map net fluxes, subtracting reverse, for each diagramEquation
-modelFID=fopen(['results_PE' suffix '.txt']);
-writeFID=fopen(['model' suffix '.csv'],'w');
+modelFID=fopen(['outputMaster/results_PE' suffix '.txt']);
+writeFID=fopen(['outputMaster/model' suffix '.csv'],'w');
 line=fgetl(modelFID);
 simFluxes=[];
 fluxes=0;
@@ -128,10 +128,10 @@ fclose(writeFID);
 
 %This code is modeled on C13_example.m under examples/c13_flux in CyFluxViz
 modelID = ['model' suffix];
-fluxInFile = ['model' suffix '.csv'];
-sbmlOutFile = [modelID '.xml'];
+fluxInFile = ['outputMaster/' modelID '.csv'];
+sbmlOutFile = ['outputMaster/' modelID '.xml'];
 [fluxdata, sources, targets] = C13flux(modelID, fluxInFile,sbmlOutFile);
-xmlOutFile = [modelID 'Fluxes.xml'];
+xmlOutFile = ['outputMaster/' modelID 'Fluxes.xml'];
 fluxdata2XML(fluxdata,xmlOutFile);
-jsonOutFile = [modelID 'Fluxes.json'];
+jsonOutFile = ['outputMaster/' modelID 'Fluxes.json'];
 fluxdata2JSON(fluxdata,jsonOutFile);

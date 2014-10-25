@@ -1,11 +1,12 @@
 %min1Percent controls whether all errors have absolute floor of .01.
+suffix='v0';
 min1Percent=1;
-[c13mfa metNamesTable junk2] = xlsread('XiaojingTargetedYiping.xlsx');
+[c13mfa metNamesTable junk2] = xlsread(['XiaojingTargetedYiping' suffix '.xlsx']);
 metNamesTable=metNamesTable(2:end,1);
 
 %read in list of targeted metabolites
 metNamesList={};
-listFID=fopen('TargetedListNames.txt');
+listFID=fopen(['TargetedListNames' suffix '.txt']);
 line=fgetl(listFID);
 while(line~=-1)
     words=strsplit(line,' ');
@@ -141,4 +142,4 @@ for i=1:length(metNamesTable)
         outputCellArray{i+1,j}=outputMatrix(i,j-1);
     end
 end
-xlswrite('AllMetabolitesYipingMin1Percent.xlsx',outputCellArray,'A1:E1721')
+xlswrite(['outputMaster/AllMetabolitesYiping' suffix '.xlsx'],outputCellArray,'A1:E1721')

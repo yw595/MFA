@@ -1,7 +1,8 @@
-readFile='AllMetabolitesYipingMin1PercentErythroseInterchanged.xlsx';
-suffix='Test';
-writeFile=['model' suffix '.xls'];
-errorCompareGraph=['errorCompareGraph' suffix '.png'];
+suffix='v0';
+readFile=['outputMaster/AllMetabolitesYiping' suffix '.xlsx'];
+copyfile(['model' suffix '.xls'],['outputMaster/model' suffix '.xls'])
+writeFile=['outputMaster/model' suffix '.xls'];
+errorCompareGraph=['outputMaster/errorCompareGraph' suffix '.png'];
 meanOffset=1;errorOffset=2;
 
 %overwriteError controls whether errors1 or errors2 is used (see below on

@@ -1,5 +1,5 @@
-suffix='Test';
-inputFID=fopen(['model' suffix '.txt']);
+suffix='v0';
+inputFID=fopen(['outputMaster/model' suffix '.txt']);
 
 %reactionLabels1 contains R name, reactionLabels2 contains equation name
 %metabolites contains metabolite names for all isotopomers, isotopomers
@@ -59,7 +59,7 @@ end
 fclose(inputFID);
 
 %get simulation MID distribution
-inputFID=fopen(['MID_solution' suffix '.txt']);
+inputFID=fopen(['outputMaster/MID_solution' suffix '.txt']);
 line=fgetl(inputFID);
 simMID=[];
 while(line~=-1)
@@ -72,7 +72,7 @@ fclose(inputFID);
 combMID=[];combMID(1:2:(2*length(expMID)-1))=expMID;combMID(2:2:(2*length(expMID)))=simMID;
 
 %get simulated flux distribution
-inputFID=fopen(['results_PE' suffix '.txt']);
+inputFID=fopen(['outputMaster/results_PE' suffix '.txt']);
 line=fgetl(inputFID);
 simFluxes=[];
 fluxes=0;
@@ -126,15 +126,15 @@ selectCombMID=[];selectCombMID(1:2:19)=selectExpMID;selectCombMID(2:2:20)=select
 
 makeGraph(reactionLabels1,simFluxes,'Flux',[0 .0000001], ...
     [.25 2.5 .32*length(simFluxes) 6],[1.25 5.5 .64*length(simFluxes) 6], ...
-    1,5,['fluxGraphZoom' suffix '.png'],'fluxGraphZoom');
+    1,5,['outputMaster/fluxGraphZoom' suffix '.png'],'fluxGraphZoom');
 
 makeGraph(reactionLabels1,simFluxes,'Flux',[], ...
     [.25 2.5 .32*length(simFluxes) 6],[2.25 3.25 .64*length(simFluxes) 10], ...
-    1,5,['fluxGraph' suffix '.png'],'fluxGraph');
+    1,5,['outputMaster/fluxGraph' suffix '.png'],'fluxGraph');
 
 makeGraph(exchangeLabels,exchangeFluxes,'Flux',[], ...
     [.25 2.5 .32*length(exchangeFluxes) 6],[2.25 3.25 .64*length(exchangeFluxes) 10], ...
-    1,5,['fluxGraphExchange' suffix '.png'],'fluxGraphExchange');
+    1,5,['outputMaster/fluxGraphExchange' suffix '.png'],'fluxGraphExchange');
 
 shortenedMetabolites={};
 for i=1:length(metabolites)
@@ -148,7 +148,7 @@ end
 
 makeGraph(shortenedMetabolites,combMID,'MID Proportion',[], ...
     [0 0 .3*length(expMID) 20],[], ...
-    1,25,['MIDGraph' suffix '.png'],'MIDGraph');
+    1,25,['outputMaster/MIDGraph' suffix '.png'],'MIDGraph');
 
 for i=1:length(selectMetabolites)
     selectMetabolites{i}=[selectMetabolites{i} ' ' selectIsotopomers{i}];
@@ -156,8 +156,8 @@ end
 
 makeGraph(selectMetabolites,selectCombMID,'MID Proportion',[], ...
     [.25 2 .50*length(selectCombMID) 12],[], ...
-    1,25,['MIDGraphSelect' suffix '.png'],'MIDGraphSelect');
+    1,25,['outputMaster/MIDGraphSelect' suffix '.png'],'MIDGraphSelect');
 
 makeGraph(selectMetabolites,(selectExpMID-selectSimMID)./selectExpSTD,'MID Proportion',[], ...
     [.25 2 .50*length(selectCombMID) 12],[], ...
-    1,25,['MIDErrorSelect' suffix '.png'],'MIDErrorSelect');
+    1,25,['outputMaster/MIDErrorSelect' suffix '.png'],'MIDErrorSelect');

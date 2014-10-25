@@ -1,4 +1,4 @@
-suffix='Test';
-movefile(['MID_solution' suffix '.txt'],'MID_solution.txt');
-movefile(['results_mid' suffix '.txt'],'results_mid.txt');
-movefile(['results_PE' suffix '.txt'],'results_PE.txt');
+suffix='v0';
+movefile(['outputMaster/MID_solution' suffix '.txt'],'outputMaster/MID_solution.txt');
+movefile(['outputMaster/results_mid' suffix '.txt'],'outputMaster/results_mid.txt');
+movefile(['outputMaster/results_PE' suffix '.txt'],'outputMaster/results_PE.txt');

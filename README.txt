@@ -12,22 +12,33 @@ graphMIDResults makes several different bar graphs from the renamed output files
 
 Workflow Notes (initially added on 10/25/2014):
 
-Make XiaojingTargetedYiping.xlsx from targeted-11ppm-both.xlsx by removing every column past AW, removing all spaces in the metabolite names, removing the first row, and renaming the UMP metabolite in rows 1691-1700 to UMP_2. 
+Make XiaojingTargetedYipingv0.xlsx from targeted-11ppm-both.xlsx by removing every column past AW, removing all spaces in the metabolite names, removing the first row, and renaming the UMP metabolite in rows 1691-1700 to UMP_2. 
 
-Use parseExtractScriptYiping to make AllMetabolitesYipingMin1Percent.xlsx from XiaojingTargetedYiping.xlsx and TargetedListNames.txt.
+Use parseExtractScriptYiping to make AllMetabolitesYipingv0.xlsx from XiaojingTargetedYiping.xlsx and TargetedListNames.txt.
 
-Make AllMetabolitesYipingMin1PercentErythroseInterchanged.xlsx by interchanging the values for 3 and 4[13C] erythrose in AllMetabolitesYipingMin1Percent.xlsx.
+Interchange the values for 3 and 4[13C] erythrose in AllMetabolitesYipingv0.xlsx.
 
-Handwrite everything in modelTest.xls except measurements and errors.
+Handwrite everything in modelv0.xls except measurements and errors.
 
-Use writeXiaojingMeas to write measurements and errors to modelTest.xls.
+Use writeXiaojingMeas to write measurements and errors to modelv0.xls, and make errorCompareGraphv0.png.
+
+Save modelv0.xls in .txt format.
 
 Use OpenFLUX_v2.jar, with the setting Overwrite all existing files, to make dee_x_sim.m, error.txt, measurements.txt, substrate_EMU.m, x_sim.m, and all files in the "model" folder.
 
-Run renameSettingsFiles to write over setting_PE.mat, setting_CI.mat, and inputSubConfig.mat with TwoIterBasis100Limits1000, Basis100Limits1000OnlyGlucose, and Test versions.
+Run renameSettingsFiles to write over setting_PE.mat, setting_CI.mat, and inputSubConfig.mat with v0 versions.
 
-Run start13OF, Task 1, accept all settings detected from setting_PE.mat and inputSubConfig.mat. Output allBasis_soln.txt, inputSubEMU.mat, results_exitflag.txt, results_flag.txt, results_fval.txt, results_midTest.txt, results_PETest.txt, results_x.txt, results_x0.txt, and x_solution.txt
+Run start13OF, Task 1, accept all settings detected from setting_PE.mat and inputSubConfig.mat. Output allBasis_soln.txt, inputSubEMU.mat, results_exitflag.txt, results_flag.txt, results_fval.txt, results_midv0.txt, results_PEv0.txt, results_x.txt, results_x0.txt, and x_solution.txt
 
-Run graphMIDResults to make fluxGraphExchangeTest.png, fluxGraphTest.png, fluxGraphZoomTest.png, MIDErrorSelectTest.png, MIDGraphSelectTest.png, MIDGraphTest.png.
+Run graphMIDResults to make fluxGraphExchangeTest.png, fluxGraphv0.png, fluxGraphZoomv0.png, MIDErrorSelectv0.png, MIDGraphSelectv0.png, MIDGraphv0.png.
 
-Run fluxNetDiagram to make modelTest.xml, modelTestFluxes.xml, and modelTestFluxes.json.
+Run fluxNetDiagram to make modelv0.xml, modelv0Fluxes.xml, and modelv0Fluxes.json.
+
+Configuration Notes:
+
+.mat files are inputSubConfigTestExport.mat, setting_CIBasis100Limits1000OnlyGlucoseExport.mat, and setting_PETwoIterBasis100Limits1000Export.mat.
+
+parseExtractScriptYiping: min1Percent=1
+writeXiaojingMeas: meanOffset=1,errorOffset=2,overwriteError=1,uniformError=0
+
+Above, including manual erythrose interchange, XiaojingTargetedYiping changes, and model file definition, are summarized as v0.
