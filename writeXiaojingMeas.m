@@ -1,8 +1,15 @@
-suffix='v0';
-readFile=['outputMaster/AllMetabolitesYiping' suffix '.xlsx'];
-copyfile(['model' suffix '.xls'],['outputMaster/model' suffix '.xls'])
-writeFile=['outputMaster/model' suffix '.xls'];
-errorCompareGraph=['outputMaster/errorCompareGraph' suffix '.png'];
+function writeXiaojingMeas(outputDir,suffix)
+
+if ~exist(outputDir,'var')
+    outputDir = 'outputMaster';
+end
+if ~exist(suffix,'var')
+    suffix='v0';
+end
+readFile=[outputDir '/AllMetabolitesYiping' suffix '.xlsx'];
+copyfile(['model' suffix '.xls'],[outputDir 's/model' suffix '.xls'])
+writeFile=[outputDir '/model' suffix '.xls'];
+errorCompareGraph=[outputDir '/errorCompareGraph' suffix '.png'];
 meanOffset=1;errorOffset=2;
 
 %overwriteError controls whether errors1 or errors2 is used (see below on
@@ -147,3 +154,4 @@ end
 
 makeGraph(labels,(errors2./means)','Error/Mean',[],[.25 2.5 .16*length(means) 12], ...
     [],2,10,errorCompareGraph,'errorCompare');
+end

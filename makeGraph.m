@@ -12,6 +12,10 @@ function makeGraph(xLabels,yData,yLabel,yLimArray,paperPositionArray, ...
         end
     elseif(strcmp(taskName,'MIDErrorSelect'))
         bar(1:length(yData),yData,barWidth,'g');
+    elseif(strcmp(taskName,'fluxVariabilityCompare'))
+        boxplot(yData,'whisker',1/eps,'colors','gr','boxstyle','filled');
+    elseif(strcmp(taskName,'fluxVariability'))
+        boxplot(yData,'whisker',1/eps,'colors','g','boxstyle','filled');
     else
         bar(1:length(yData),yData,barWidth);
     end
@@ -38,6 +42,8 @@ function makeGraph(xLabels,yData,yLabel,yLimArray,paperPositionArray, ...
     for i=1:length(xLabels)
         if(strcmp(taskName,'MIDGraph') || strcmp(taskName,'MIDGraphSelect'))
             t(i)=text(2*i-1,y+.02,xLabels{i},'fontSize',labelFont,'Interpreter','default');
+        elseif(strcmp(taskName,'fluxVariabilityCompare'))
+            t(i)=text(2*i-1,y+.01,xLabels{i},'fontSize',labelFont,'Interpreter','default');
         else
             t(i)=text(i,y+.02,xLabels{i},'fontSize',labelFont,'Interpreter','default');
         end

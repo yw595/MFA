@@ -1,65 +1,20 @@
-suffix='v0';
-inputFID=fopen(['outputMaster/model' suffix '.txt']);
+function graphMIDResults(outputDir,suffix)
+
+if ~exist(outputDir,'var')
+    outputDir = 'outputMaster';
+end
+if ~exist(suffix,'var')
+    suffix='v0';
+end
 
 %reactionLabels1 contains R name, reactionLabels2 contains equation name
 %metabolites contains metabolite names for all isotopomers, isotopomers
 %contains m numbers
-line=fgetl(inputFID);
-measurements=0;
-errors=0;
-expMID=[];
-expSTD=[];
-metabolites={};
-isotopomers={};
-reactionLabels1={};
-reactionLabels2={};
-currentMetabolite='';
-while(line~=-1)
-    if(sum(regexp(line,'^R'))~=0)
-        words=strsplit(line,'\t');
-        reactionLabels1{end+1}=words{1};
-        reactionLabels2{end+1}=words{2};
-    end
-    if(sum(regexp(line,'measurements'))~=0)
-        measurements=1;
-    end
-    if(sum(regexp(line,'error'))~=0)
-        measurements=0;
-        errors=1;
-    end
-    
-    if(measurements)
-        words=strsplit(line,'\t');
-        %check if line is actual measurements label, check if line is empty
-        %since always '' at end of strsplit array
-        if(~strcmp(words{1},'##') && ~strcmp(words{1},''))
-            expMID(end+1)=str2num(words{2});
-            
-            %if no metabolite name so length==4, add to metabolites and
-            %isotopomers, else also change current Metabolite
-            if(length(words)==4)
-                metabolites{end+1}=currentMetabolite;
-                isotopomers{end+1}=words{3};
-            else
-                currentMetabolite=words{3};
-                metabolites{end+1}=currentMetabolite;
-                isotopomers{end+1}=words{4};
-            end
-        end
-    end
-    
-    if(errors)
-        words=strsplit(line,'\t');
-        if(~strcmp(words{1},'##') && ~strcmp(words{1},''))
-            expSTD(end+1)=str2num(words{2});
-        end
-    end
-    line=fgetl(inputFID);
-end
-fclose(inputFID);
+inputFile=[outputDir '/model' suffix '.txt'];
+[measurements errors expMID expSTD metabolites isotopomers reactionLabels1 reactionLabels2]=readModelFile(inputFile);
 
 %get simulation MID distribution
-inputFID=fopen(['outputMaster/MID_solution' suffix '.txt']);
+inputFID=fopen([outputDir '/MID_solution' suffix '.txt']);
 line=fgetl(inputFID);
 simMID=[];
 while(line~=-1)
@@ -72,7 +27,7 @@ fclose(inputFID);
 combMID=[];combMID(1:2:(2*length(expMID)-1))=expMID;combMID(2:2:(2*length(expMID)))=simMID;
 
 %get simulated flux distribution
-inputFID=fopen(['outputMaster/results_PE' suffix '.txt']);
+inputFID=fopen([outputDir '/results_PE' suffix '.txt']);
 line=fgetl(inputFID);
 simFluxes=[];
 fluxes=0;
@@ -126,15 +81,15 @@ selectCombMID=[];selectCombMID(1:2:19)=selectExpMID;selectCombMID(2:2:20)=select
 
 makeGraph(reactionLabels1,simFluxes,'Flux',[0 .0000001], ...
     [.25 2.5 .32*length(simFluxes) 6],[1.25 5.5 .64*length(simFluxes) 6], ...
-    1,5,['outputMaster/fluxGraphZoom' suffix '.png'],'fluxGraphZoom');
+    1,5,[outputDir '/fluxGraphZoom' suffix '.png'],'fluxGraphZoom');
 
 makeGraph(reactionLabels1,simFluxes,'Flux',[], ...
     [.25 2.5 .32*length(simFluxes) 6],[2.25 3.25 .64*length(simFluxes) 10], ...
-    1,5,['outputMaster/fluxGraph' suffix '.png'],'fluxGraph');
+    1,5,[outputDir '/fluxGraph' suffix '.png'],'fluxGraph');
 
 makeGraph(exchangeLabels,exchangeFluxes,'Flux',[], ...
     [.25 2.5 .32*length(exchangeFluxes) 6],[2.25 3.25 .64*length(exchangeFluxes) 10], ...
-    1,5,['outputMaster/fluxGraphExchange' suffix '.png'],'fluxGraphExchange');
+    1,5,[outputDir '/fluxGraphExchange' suffix '.png'],'fluxGraphExchange');
 
 shortenedMetabolites={};
 for i=1:length(metabolites)
@@ -148,7 +103,7 @@ end
 
 makeGraph(shortenedMetabolites,combMID,'MID Proportion',[], ...
     [0 0 .3*length(expMID) 20],[], ...
-    1,25,['outputMaster/MIDGraph' suffix '.png'],'MIDGraph');
+    1,25,[outputDir '/MIDGraph' suffix '.png'],'MIDGraph');
 
 for i=1:length(selectMetabolites)
     selectMetabolites{i}=[selectMetabolites{i} ' ' selectIsotopomers{i}];
@@ -156,8 +111,9 @@ end
 
 makeGraph(selectMetabolites,selectCombMID,'MID Proportion',[], ...
     [.25 2 .50*length(selectCombMID) 12],[], ...
-    1,25,['outputMaster/MIDGraphSelect' suffix '.png'],'MIDGraphSelect');
+    1,25,[outputDir '/MIDGraphSelect' suffix '.png'],'MIDGraphSelect');
 
 makeGraph(selectMetabolites,(selectExpMID-selectSimMID)./selectExpSTD,'MID Proportion',[], ...
     [.25 2 .50*length(selectCombMID) 12],[], ...
-    1,25,['outputMaster/MIDErrorSelect' suffix '.png'],'MIDErrorSelect');
+    1,25,[outputDir '/MIDErrorSelect' suffix '.png'],'MIDErrorSelect');
+end

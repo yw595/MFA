@@ -1,5 +1,13 @@
+function parseExtractScriptYiping(outputDir,suffix)
+
+if ~exist(outputDir,'var')
+    outputDir = 'outputMaster';
+end
+if ~exist(suffix,'var')
+    suffix='v0';
+end
+
 %min1Percent controls whether all errors have absolute floor of .01.
-suffix='v0';
 min1Percent=1;
 [c13mfa metNamesTable junk2] = xlsread(['XiaojingTargetedYiping' suffix '.xlsx']);
 metNamesTable=metNamesTable(2:end,1);
@@ -142,4 +150,5 @@ for i=1:length(metNamesTable)
         outputCellArray{i+1,j}=outputMatrix(i,j-1);
     end
 end
-xlswrite(['outputMaster/AllMetabolitesYiping' suffix '.xlsx'],outputCellArray,'A1:E1721')
+xlswrite([outputDir '/AllMetabolitesYiping' suffix '.xlsx'],outputCellArray,'A1:E1721')
+end
