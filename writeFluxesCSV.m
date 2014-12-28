@@ -1,8 +1,8 @@
-function [simFluxes totalVariability]=writeFluxesCSV(inputFile,outputFile,modelEquationsToDiagramEquations,modelEquations,modelEquationsReversibility,simFluxesMatrix)
+function [simFluxes totalVariability]=writeFluxesCSV(inputFile,outputFile,modelEquationsToDiagramEquations,modelEquations,modelEquationsReversibility,simFluxesMatrix,writeMedian,writeVariability)
 
-writeMedian=0;
+medianOrVariability=0;
 if exist('simFluxesMatrix','var')
-    writeMedian=1;
+    medianOrVariability=1;
 end
 
 %read in corresponding results_PE file, map net fluxes, subtracting reverse, for each diagramEquation
@@ -33,15 +33,20 @@ while(line~=-1)
         words=strsplit(line,'\t');
         reactionNum=words{1};
         reversibility=modelEquationsReversibility{str2num(reactionNum(2:end))};
-        if(writeMedian)
+        if(medianOrVariability)
             totalVariability=totalVariability+max(simFluxesMatrix(simFluxIdx,:))-min(simFluxesMatrix(simFluxIdx,:));
         end
         if(strcmp(reversibility,'F'))
             diagramEquations=modelEquationsToDiagramEquations(modelEquations{str2num(reactionNum(2:end))});
             simFluxes(end+1)=str2num(words{2});
             for i=1:length(diagramEquations)
-                if(writeMedian)
-                    fprintf(writeFID,'%s%f\n',diagramEquations{i},median(simFluxesMatrix(simFluxIdx,:)));
+                if(medianOrVariability)
+                    if(writeMedian)
+                        median(simFluxesMatrix(simFluxIdx,:))
+                        fprintf(writeFID,'%s%f\n',diagramEquations{i},median(simFluxesMatrix(simFluxIdx,:)));
+                    elseif(writeVariability)
+                        fprintf(writeFID,'%s%f\n',diagramEquations{i},max(simFluxesMatrix(simFluxIdx,:))-min(simFluxesMatrix(simFluxIdx,:)));
+                    end
                 else
                     fprintf(writeFID,'%s%f\n',diagramEquations{i},str2num(words{2}));
                 end
@@ -51,8 +56,12 @@ while(line~=-1)
             diagramEquations=modelEquationsToDiagramEquations(modelEquations{str2num(reactionNum(2:end))-1});
             simFluxes(end+1)=str2num(prevwords{2})-str2num(words{2});
             for i=1:length(diagramEquations)
-                if(writeMedian)
-                    fprintf(writeFID,'%s%f\n',diagramEquations{i},median(simFluxesMatrix(simFluxIdx,:)));
+                if(medianOrVariability)
+                    if(writeMedian)
+                        fprintf(writeFID,'%s%f\n',diagramEquations{i},median(simFluxesMatrix(simFluxIdx,:)));
+                    elseif(writeVariability)
+                        fprintf(writeFID,'%s%f\n',diagramEquations{i},max(simFluxesMatrix(simFluxIdx,:))-min(simFluxesMatrix(simFluxIdx,:)));
+                    end
                 else
                     fprintf(writeFID,'%s%f\n',diagramEquations{i},str2num(prevwords{2})-str2num(words{2}));
                 end

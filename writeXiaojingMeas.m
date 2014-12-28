@@ -1,16 +1,16 @@
 function writeXiaojingMeas(outputDir,suffix)
 
-if ~exist(outputDir,'var')
+if ~exist('outputDir','var')
     outputDir = 'outputMaster';
 end
-if ~exist(suffix,'var')
+if ~exist('suffix','var')
     suffix='v0';
 end
 readFile=[outputDir '/AllMetabolitesYiping' suffix '.xlsx'];
-copyfile(['model' suffix '.xls'],[outputDir 's/model' suffix '.xls'])
+copyfile(['model' suffix '.xls'],[outputDir '/model' suffix '.xls'])
 writeFile=[outputDir '/model' suffix '.xls'];
 errorCompareGraph=[outputDir '/errorCompareGraph' suffix '.png'];
-meanOffset=1;errorOffset=2;
+meanOffset=3;errorOffset=4;
 
 %overwriteError controls whether errors1 or errors2 is used (see below on
 %error writing section)

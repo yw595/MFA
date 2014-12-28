@@ -66,9 +66,9 @@ end
 end
 
 clear all;
-outputDir = 'outputMaster/batch';
-suffix = 'v0TwoLock';
-renameSettingsFiles('v0TwoLock','v0','v0',outputDir)
+outputDir = 'outputMaster/batchHlavacek';
+suffix = 'v0Hlavacek';
+renameSettingsFiles('v0','v0','v0',outputDir)
 for iterIdx=1:10
     eval(['cd ' outputDir]);
     pwd

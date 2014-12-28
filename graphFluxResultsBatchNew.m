@@ -11,6 +11,7 @@ end
 %metabolites contains metabolite names for all isotopomers, isotopomers
 %contains m numbers
 inputFile=[outputDir '/model' suffix '.txt'];
+inputFile
 [measurements errors expMID expSTD metabolites isotopomers reactionLabels1 reactionLabels2]=readModelFile(inputFile);
 
 simMIDMatrix=[];
@@ -50,10 +51,8 @@ end
 %read in corresponding results_PE file, map net fluxes, subtracting reverse, for each diagramEquation
 modelFile=[outputDir '/results_PE' suffix '1.txt'];
 writeFile=[outputDir '/model' suffix 'Median.csv'];
-[simFluxes totalVariability]=writeFluxesCSV(modelFile,writeFile,modelEquationsToDiagramEquations,modelEquations,modelEquationsReversibility,simFluxesMatrix);
-
-disp('Total Variability: ')
-disp(totalVariability)
+[simFluxes totalVariability]=writeFluxesCSV(modelFile,writeFile, ...
+    modelEquationsToDiagramEquations,modelEquations,modelEquationsReversibility,simFluxesMatrix,1,0);
 
 modelID = ['model' suffix];
 fluxInFile = [outputDir '/' modelID 'Median.csv'];
@@ -63,6 +62,23 @@ xmlOutFile = [outputDir '/' modelID 'MedianFluxes.xml'];
 fluxdata2XML(fluxdata,xmlOutFile);
 jsonOutFile = [outputDir '/' modelID 'MedianFluxes.json'];
 fluxdata2JSON(fluxdata,jsonOutFile);
+
+modelFile=[outputDir '/results_PE' suffix '1.txt'];
+writeFile=[outputDir '/model' suffix 'Variability.csv'];
+[simFluxes totalVariability]=writeFluxesCSV(modelFile,writeFile, ...
+    modelEquationsToDiagramEquations,modelEquations,modelEquationsReversibility,simFluxesMatrix,0,1);
+
+modelID = ['model' suffix];
+fluxInFile = [outputDir '/' modelID 'Variability.csv'];
+sbmlOutFile = [outputDir '/' modelID '.xml'];
+[fluxdata, sources, targets] = C13flux(modelID, fluxInFile,sbmlOutFile);
+xmlOutFile = [outputDir '/' modelID 'VariabilityFluxes.xml'];
+fluxdata2XML(fluxdata,xmlOutFile);
+jsonOutFile = [outputDir '/' modelID 'VariabilityFluxes.json'];
+fluxdata2JSON(fluxdata,jsonOutFile);
+
+disp('Total Variability: ')
+disp(totalVariability)
 
 makeGraph(reactionLabels1,simFluxesMatrix','Flux',[], ...
     [0 2 12 8],[], ...

@@ -1,9 +1,9 @@
 function parseExtractScriptYiping(outputDir,suffix)
 
-if ~exist(outputDir,'var')
+if ~exist('outputDir','var')
     outputDir = 'outputMaster';
 end
-if ~exist(suffix,'var')
+if ~exist('suffix','var')
     suffix='v0';
 end
 

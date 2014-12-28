@@ -1,8 +1,8 @@
 function renameOutputFiles(suffix,inputAndOutputDir)
-if ~exist(suffix,'var')
+if ~exist('suffix','var')
     suffix='v0';
 end
-if ~exist(inputAndOutputDir,'var')
+if ~exist('inputAndOutputDir','var')
     inputAndOutputDir='outputMaster';
 end
 movefile([inputAndOutputDir '/MID_solution.txt'],[inputAndOutputDir '/MID_solution' suffix '.txt']);
