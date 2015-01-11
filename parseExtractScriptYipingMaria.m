@@ -8,11 +8,14 @@ if ~exist('suffix','var')
 end
 
 %min1Percent controls whether all errors have absolute floor of .01.
+%use second page for now since the file opens there
 min1Percent=1;
 [c13mfa metNamesTable junk2] = xlsread(['data' suffix '.xlsx'],2);
-%Start from 3 because we do not remove extra row as we did for Xiaojing,
-%end at 968 because met names end there
-metNamesTable=metNamesTable(3:968,52);
+%Since we do not remove extra row as we did for Xiaojing, Excel sheet
+%column headers start at 2 and met names end at 968.
+%For some reason, metNamesTable has the column headers in the first row, so
+%metNames start at second row, continue till 967.
+metNamesTable=metNamesTable(2:967,52);
 
 %read in list of targeted metabolites (note need to make script to make
 %such a targeted list direct from excel table)
@@ -40,6 +43,18 @@ for i=1:length(metNamesList)
 end
 [metNamesMatchIdxs sortIdxs]=sort(metNamesMatchIdxs);
 metNamesList=metNamesList(sortIdxs);
+
+%if we use above code block from Xiaojing, seems only seven met names match
+%therefore, just add plain met names to list as we find them in table, and
+%build matchIdxs accordingly
+metNamesList = {};
+metNamesMatchIdxs = [];
+for i=1:length(metNamesTable)
+    if(isempty(regexp( metNamesTable{i},'[13C]' )))
+        metNamesMatchIdxs(end+1) = i;
+        metNamesList{end+1} = metNamesTable{i};
+    end
+end
 
 %colIdxs contain locations of replicate columns for high and low glucose
 colIdxsVeh=[54:56; 57:59; 60:62; 63:65; 66:68; 69:71] - 1;
