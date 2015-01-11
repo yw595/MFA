@@ -1,4 +1,6 @@
-function parseExtractScriptYipingMaria(outputDir,suffix)
+function parseExtractScriptYipingMaria(pageNumber,outputDir,suffix)
+%pageNumber must be first, so that outputDir and suffix can be optional
+%arguments
 
 if ~exist('outputDir','var')
     outputDir = 'outputMaster/Maria';
@@ -8,14 +10,18 @@ if ~exist('suffix','var')
 end
 
 %min1Percent controls whether all errors have absolute floor of .01.
-%use second page for now since the file opens there
+%use pageNumber since Maria's data has pos and neg parts
 min1Percent=1;
-[c13mfa metNamesTable junk2] = xlsread(['data' suffix '.xlsx'],2);
+[c13mfa metNamesTable junk2] = xlsread(['data' suffix '.xlsx'],pageNumber);
 %Since we do not remove extra row as we did for Xiaojing, Excel sheet
-%column headers start at 2 and met names end at 968.
+%column headers start at 2 and met names end at 968, for page 2.
 %For some reason, metNamesTable has the column headers in the first row, so
-%metNames start at second row, continue till 967.
-metNamesTable=metNamesTable(2:967,52);
+%metNames start at second row, continue till 967. Similar for page 1
+if(pageNumber==2)
+    metNamesTable=metNamesTable(2:967,52);
+else
+    metNamesTable=metNamesTable(2:324,52);
+end
 
 %read in list of targeted metabolites (note need to make script to make
 %such a targeted list direct from excel table)
@@ -172,5 +178,12 @@ for i=1:length(metNamesTable)
         outputCellArray{i+1,j}=outputMatrix(i,j-1);
     end
 end
-xlswrite([outputDir '/AllMetabolitesYiping' suffix '.xlsx'],outputCellArray)
+
+%either write out all negative data to new sheet, or append positive data
+%based on hardcoded length of previous negative data
+if(pageNumber==2)
+    xlswrite([outputDir '/AllMetabolitesYiping' suffix '.xlsx'], outputCellArray)
+else
+    xlswrite([outputDir '/AllMetabolitesYiping' suffix '.xlsx'], outputCellArray(2:end,:), 'A968:Y1290')
+end
 end
