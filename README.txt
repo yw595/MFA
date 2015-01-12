@@ -46,8 +46,10 @@ Above, including manual erythrose interchange, XiaojingTargetedYiping changes, a
 1/11/2015
 testPathways.R reads testKEGG.txt, which the KEGG ID of succinate, and prints to screen the first KEGG pathway associated with the KEGG ID.
 
-parseExtractScriptYipingMaria is derived from the original script for Xiaojing, and uses dataMaria.xlsx, which is a rename of 12-8-14_13C-glucose intracellular labeling.xlsx. It puts the output file AllMetabolitesYipingMaria.xlsx in outputMaster/Maria
+parseExtractScriptYipingMaria is derived from the original script for Xiaojing, and uses dataMaria.xlsx, which is a rename of 12-8-14_13C-glucose intracellular labeling.xlsx, as well as, purely for the sake of cleanliness for now, a dummy TargetedListNamesMaria.txt. It puts the output file AllMetabolitesYipingMaria.xlsx in outputMaster/Maria
 
 I made some changes to AllMetabolitesYipingMaria. I renamed the MIs beneath G6P or F6P to that name instead of C6H13O9P(13), similarly "Fructose-1 and C6H14O12P2(7) to fructose-16-bisphosphate, and C5H11O8P(5) to D-ribose-5-phosphate. There were both D-aspartate(1-) and L-aspartate(1-), and glutamate and L-glutamate(1-) pairs, I took the L version both times.
 
 writeMariaMeas is based on writeXiaojingMeas, and uses modelMaria.xlsx (which is based on modelv0.xlsx) to make errorCompareGraphMaria.png and modelMaria.xlsx with measurements in outputMaster/Maria.
+
+I also added a block in parseExtractScriptYipingMaria to calculate the fractional labeling. I could not copy from something like writeXiaojingMeas because we did not have a model file giving total carbon number. This block should be used with NoMin1Percent, thus dummy files dataMaria and TargetedListMaria with that suffix. Note that the output AllMetabolites file was not edited as above.

@@ -6,12 +6,12 @@ if ~exist('outputDir','var')
     outputDir = 'outputMaster/Maria';
 end
 if ~exist('suffix','var')
-    suffix='Maria';
+    suffix='MariaNoMin1Percent';
 end
 
 %min1Percent controls whether all errors have absolute floor of .01.
 %use pageNumber since Maria's data has pos and neg parts
-min1Percent=1;
+min1Percent=0;
 [c13mfa metNamesTable junk2] = xlsread(['data' suffix '.xlsx'],pageNumber);
 %Since we do not remove extra row as we did for Xiaojing, Excel sheet
 %column headers start at 2 and met names end at 968, for page 2.
@@ -160,6 +160,56 @@ for h=1:2
         outputMatrix(~isnan(MIDError), (h-1)*12+(z-1)*2+2) = MIDError(~isnan(MIDError));
     end
 end
+
+fractionalLabeling = [];
+for i=1:2
+    currentLabeling = 0;
+    currentMetNum = 1;
+    for j=1:length(metNamesTable)
+        jthMetName = metNamesTable{j};
+        
+        % strip out " in front of "clupanodonic acid/docosa-4 and "(R, so
+        % we can parse MI numbers below
+        if(strcmp( jthMetName(1),'"' ))
+            jthMetName = jthMetName(2:end);
+        end
+        
+        labelingIndex = regexp( jthMetName,'\[13C\]' );
+        if(~isempty(labelingIndex))
+            currentLabeling = str2num(jthMetName(1: labelingIndex(1)-1 ));
+        else
+            %for the first metabolite, there are no processed MIs behind
+            %it, thus we skip it
+            if(j~=1)
+                %currentLabeling should be the highest MI number of the
+                %preceding metabolite, representing total number of
+                %carbons, which we use to weight the barePercent
+                total = totalLabeled + barePercent*currentLabeling;
+                fractionalLabeling(currentMetNum,i) = totalLabeled/total;
+                currentMetNum = currentMetNum+1;
+            end
+            currentLabeling = 0;
+        end
+        
+        % use i*12-1 to get last 4 hour time point for either vehicle or KA
+        if(currentLabeling~=0)
+            totalLabeled = totalLabeled + currentLabeling*outputMatrix(j,i*12-1);
+        else
+            barePercent = outputMatrix(j,i*12-1);
+            totalLabeled = 0;
+        end
+        
+        %at end of data, we must process MI data of last metabolite
+        %although there are more bare met names to anchor on
+        if(j==length( metNamesTable ))
+            total = totalLabeled + barePercent*currentLabeling;
+            fractionalLabeling(currentMetNum,i) = totalLabeled/total;
+            currentMetNum = currentMetNum+1;
+        end
+    end
+end
+
+fractionalLabeling
 
 %add headers and metNames to outputMatrix, write to output file
 conditions = {'Veh','KA'};
